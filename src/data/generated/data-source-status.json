@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Apple GDMF",
+    "status": "ok",
+    "fetchedAt": "2026-05-01T01:36:15.910Z",
+    "message": null
+  },
+  {
+    "name": "SOFA macOS",
+    "status": "failed",
+    "fetchedAt": "2026-05-01T01:36:15.910Z",
+    "message": "403 Forbidden"
+  },
+  {
+    "name": "SOFA iOS",
+    "status": "failed",
+    "fetchedAt": "2026-05-01T01:36:15.910Z",
+    "message": "403 Forbidden"
+  },
+  {
+    "name": "Apple Developer RSS",
+    "status": "ok",
+    "fetchedAt": "2026-05-01T01:36:15.910Z",
+    "message": null
+  }
+]

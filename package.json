@@ -1,0 +1,26 @@
+{
+  "name": "iapple",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "fetch:data": "tsx scripts/fetch-apple-updates.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@astrojs/check": "latest",
+    "@astrojs/tailwind": "latest",
+    "astro": "latest",
+    "fast-xml-parser": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "tsx": "latest",
+    "vitest": "latest"
+  }
+}
