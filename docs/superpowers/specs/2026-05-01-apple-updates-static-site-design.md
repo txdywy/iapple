@@ -48,7 +48,7 @@ The site will fetch and normalize data from these sources:
    - URLs:
      - `https://sofa.macadmins.io/v1/macos_data_feed.json`
      - `https://sofa.macadmins.io/v1/ios_data_feed.json`
-   - Role: supplemental source for structured macOS/iOS update metadata and security/CVE context.
+   - Role: monitored supplemental source for structured macOS/iOS update metadata and security/CVE context; v1 records source health but does not merge SOFA fields into update cards.
 
 3. Apple Developer Releases RSS
    - URL: `https://developer.apple.com/news/releases/rss/releases.rss`
@@ -87,14 +87,14 @@ The browser will read only local static assets generated during build. It will n
 
 The workflow will run on:
 
-- A scheduled cron every 6 hours.
+- A scheduled cron every hour.
 - Manual `workflow_dispatch`.
 - Pushes to `main`.
 
-The cron should avoid the top of the hour to reduce scheduling delays, for example:
+The cron should avoid the top of the hour to reduce scheduling delays and still run hourly:
 
 ```yaml
-cron: "23 */6 * * *"
+cron: "23 * * * *"
 ```
 
 The workflow will:

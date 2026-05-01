@@ -4,6 +4,12 @@ import { normalizeGdmfUpdates, normalizeRssTimeline } from './apple-update-norma
 const fetchedAt = '2026-05-01T00:00:00.000Z';
 
 describe('normalizeGdmfUpdates', () => {
+  it('returns empty updates for malformed GDMF payloads', () => {
+    expect(normalizeGdmfUpdates(null, fetchedAt)).toEqual([]);
+    expect(normalizeGdmfUpdates({ PublicAssetSets: null }, fetchedAt)).toEqual([]);
+    expect(normalizeGdmfUpdates({ PublicAssetSets: { iOS: 'not an array' } }, fetchedAt)).toEqual([]);
+  });
+
   it('extracts known Apple OS updates from PublicAssetSets', () => {
     const data = {
       PublicAssetSets: {
@@ -98,6 +104,14 @@ describe('normalizeGdmfUpdates', () => {
 });
 
 describe('normalizeRssTimeline', () => {
+  it('keeps RSS timeline items with malformed dates', () => {
+    const rss = { rss: { channel: { item: { title: 'Malformed date release', link: '', pubDate: 'not-a-date' } } } };
+
+    expect(normalizeRssTimeline(rss)).toEqual([
+      { title: 'Malformed date release', url: null, publishedAt: null, source: 'Apple Developer RSS' }
+    ]);
+  });
+
   it('normalizes RSS items into timeline entries', () => {
     const rss = {
       rss: {

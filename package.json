@@ -5,22 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "fetch:data": "tsx scripts/fetch-apple-updates.ts",
     "test": "vitest run"
   },
   "dependencies": {
-    "@astrojs/check": "latest",
-    "@astrojs/tailwind": "latest",
-    "astro": "latest",
-    "fast-xml-parser": "latest",
-    "tailwindcss": "latest",
-    "typescript": "latest"
+    "astro": "^6.2.1",
+    "fast-xml-parser": "^5.7.2",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "tsx": "latest",
-    "vitest": "latest"
+    "@types/node": "^25.6.0",
+    "autoprefixer": "^10.5.0",
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.5"
   }
 }

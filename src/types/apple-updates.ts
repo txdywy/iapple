@@ -1,10 +1,21 @@
-export type ApplePlatform = 'iOS' | 'iPadOS' | 'macOS' | 'watchOS' | 'tvOS' | 'visionOS';
+export const applePlatforms = ['iOS', 'iPadOS', 'macOS', 'watchOS', 'tvOS', 'visionOS'] as const;
+export type ApplePlatform = (typeof applePlatforms)[number];
+
+export const dataSources = {
+  appleGdmf: 'Apple GDMF',
+  sofaMacos: 'SOFA macOS',
+  sofaIos: 'SOFA iOS',
+  appleDeveloperRss: 'Apple Developer RSS'
+} as const;
+
+export type UpdateDataSource = typeof dataSources.appleGdmf | 'Manual fallback';
+export type StatusDataSource = (typeof dataSources)[keyof typeof dataSources];
 
 export interface AppleUpdate {
   platform: ApplePlatform;
   version: string;
   build: string | null;
-  source: 'Apple GDMF' | 'SOFA' | 'Manual fallback';
+  source: UpdateDataSource;
   fetchedAt: string;
 }
 
@@ -12,11 +23,11 @@ export interface ReleaseTimelineItem {
   title: string;
   url: string | null;
   publishedAt: string | null;
-  source: 'Apple Developer RSS';
+  source: typeof dataSources.appleDeveloperRss;
 }
 
 export interface DataSourceStatus {
-  name: 'Apple GDMF' | 'SOFA macOS' | 'SOFA iOS' | 'Apple Developer RSS';
+  name: StatusDataSource;
   status: 'ok' | 'failed';
   fetchedAt: string;
   message: string | null;

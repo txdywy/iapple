@@ -1,6 +1,4 @@
-import type { ApplePlatform, AppleUpdate, ReleaseTimelineItem } from '../types/apple-updates';
-
-const platformOrder: ApplePlatform[] = ['iOS', 'iPadOS', 'macOS', 'watchOS', 'tvOS', 'visionOS'];
+import { applePlatforms, dataSources, type ApplePlatform, type AppleUpdate, type ReleaseTimelineItem } from '../types/apple-updates';
 
 interface GdmfAsset {
   ProductVersion?: unknown;
@@ -9,13 +7,17 @@ interface GdmfAsset {
   SupportedDevices?: unknown;
 }
 
-interface GdmfData {
-  PublicAssetSets?: Record<string, GdmfAsset[]>;
-}
+const devicePrefixesByPlatform: Record<ApplePlatform, string[]> = {
+  iOS: ['iPhone', 'iPod'],
+  iPadOS: ['iPad'],
+  macOS: ['J', 'Mac-', 'VMM', 'VMA'],
+  watchOS: ['Watch'],
+  tvOS: ['AppleTV', 'AudioAccessory'],
+  visionOS: ['RealityDevice']
+};
 
 export function normalizeGdmfUpdates(data: unknown, fetchedAt: string): AppleUpdate[] {
-  const gdmfData = data as GdmfData;
-  const publicAssetSets = gdmfData.PublicAssetSets ?? {};
+  const publicAssetSets = getPublicAssetSets(data);
   const assets = Object.values(publicAssetSets).flat();
   const latestByPlatform = new Map<ApplePlatform, GdmfAsset>();
 
@@ -24,9 +26,7 @@ export function normalizeGdmfUpdates(data: unknown, fetchedAt: string): AppleUpd
       continue;
     }
 
-    const assetPlatforms = classifyAsset(asset);
-
-    for (const platform of assetPlatforms) {
+    for (const platform of classifyAsset(asset)) {
       const previous = latestByPlatform.get(platform);
 
       if (!previous || compareAssets(asset, previous) > 0) {
@@ -35,7 +35,7 @@ export function normalizeGdmfUpdates(data: unknown, fetchedAt: string): AppleUpd
     }
   }
 
-  return platformOrder.flatMap((platform) => {
+  return applePlatforms.flatMap((platform) => {
     const asset = latestByPlatform.get(platform);
 
     if (!asset || typeof asset.ProductVersion !== 'string') {
@@ -47,42 +47,29 @@ export function normalizeGdmfUpdates(data: unknown, fetchedAt: string): AppleUpd
         platform,
         version: asset.ProductVersion,
         build: typeof asset.Build === 'string' && asset.Build.length > 0 ? asset.Build : null,
-        source: 'Apple GDMF',
+        source: dataSources.appleGdmf,
         fetchedAt
       }
     ];
   });
 }
 
+function getPublicAssetSets(data: unknown): Record<string, GdmfAsset[]> {
+  if (!isRecord(data) || !isRecord(data.PublicAssetSets)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(data.PublicAssetSets)
+      .filter(([, value]) => Array.isArray(value))
+      .map(([key, value]) => [key, (value as unknown[]).filter(isRecord)])
+  );
+}
+
 function classifyAsset(asset: GdmfAsset): ApplePlatform[] {
   const devices = Array.isArray(asset.SupportedDevices) ? asset.SupportedDevices.filter((device): device is string => typeof device === 'string') : [];
-  const platforms: ApplePlatform[] = [];
 
-  if (devices.some((device) => device.startsWith('iPhone') || device.startsWith('iPod'))) {
-    platforms.push('iOS');
-  }
-
-  if (devices.some((device) => device.startsWith('iPad'))) {
-    platforms.push('iPadOS');
-  }
-
-  if (devices.some((device) => device.startsWith('J') || device.startsWith('Mac-') || device.startsWith('VMM') || device.startsWith('VMA'))) {
-    platforms.push('macOS');
-  }
-
-  if (devices.some((device) => device.startsWith('Watch'))) {
-    platforms.push('watchOS');
-  }
-
-  if (devices.some((device) => device.startsWith('AppleTV') || device.startsWith('AudioAccessory'))) {
-    platforms.push('tvOS');
-  }
-
-  if (devices.some((device) => device.startsWith('RealityDevice'))) {
-    platforms.push('visionOS');
-  }
-
-  return platforms;
+  return applePlatforms.filter((platform) => devices.some((device) => devicePrefixesByPlatform[platform].some((prefix) => device.startsWith(prefix))));
 }
 
 function compareAssets(left: GdmfAsset, right: GdmfAsset): number {
@@ -99,12 +86,12 @@ function compareAssets(left: GdmfAsset, right: GdmfAsset): number {
 }
 
 function compareVersions(left: string, right: string): number {
-  const leftParts = left.split('.').map((part) => Number.parseInt(part, 10));
-  const rightParts = right.split('.').map((part) => Number.parseInt(part, 10));
+  const leftParts = parseVersionParts(left);
+  const rightParts = parseVersionParts(right);
   const length = Math.max(leftParts.length, rightParts.length);
 
   for (let index = 0; index < length; index += 1) {
-    const difference = (leftParts[index] || 0) - (rightParts[index] || 0);
+    const difference = (leftParts[index] ?? 0) - (rightParts[index] ?? 0);
 
     if (difference !== 0) {
       return difference;
@@ -114,32 +101,47 @@ function compareVersions(left: string, right: string): number {
   return 0;
 }
 
+function parseVersionParts(version: string): number[] {
+  const match = version.match(/^\d+(?:\.\d+)*/);
+  return match ? match[0].split('.').map(Number) : [];
+}
+
 interface RssItem {
   title?: unknown;
   link?: unknown;
   pubDate?: unknown;
 }
 
-interface RssData {
-  rss?: {
-    channel?: {
-      item?: RssItem | RssItem[];
-    };
-  };
-}
-
 export function normalizeRssTimeline(data: unknown): ReleaseTimelineItem[] {
-  const rssData = data as RssData;
-  const rawItems = rssData.rss?.channel?.item ?? [];
-  const items = Array.isArray(rawItems) ? rawItems : [rawItems];
-
-  return items
+  return getRssItems(data)
     .filter((item) => typeof item.title === 'string' && item.title.length > 0)
     .slice(0, 12)
     .map((item) => ({
       title: item.title as string,
       url: typeof item.link === 'string' && item.link.length > 0 ? item.link : null,
-      publishedAt: typeof item.pubDate === 'string' && item.pubDate.length > 0 ? new Date(item.pubDate).toISOString() : null,
-      source: 'Apple Developer RSS'
+      publishedAt: toIsoDateOrNull(item.pubDate),
+      source: dataSources.appleDeveloperRss
     }));
+}
+
+function getRssItems(data: unknown): RssItem[] {
+  if (!isRecord(data) || !isRecord(data.rss) || !isRecord(data.rss.channel)) {
+    return [];
+  }
+
+  const rawItems = data.rss.channel.item ?? [];
+  return (Array.isArray(rawItems) ? rawItems : [rawItems]).filter(isRecord);
+}
+
+function toIsoDateOrNull(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length === 0) {
+    return null;
+  }
+
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

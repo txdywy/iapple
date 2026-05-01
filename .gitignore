@@ -7,3 +7,4 @@ dist/
 .env.*
 .omc/
 .playwright-mcp/
+.claude/

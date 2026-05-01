@@ -8,14 +8,25 @@ import type { AppleUpdate, DataSourceStatus, ReleaseTimelineItem } from '../type
 const updates = appleData.updates as AppleUpdate[];
 const timeline = timelineData.items as ReleaseTimelineItem[];
 const statuses = sourceStatuses as DataSourceStatus[];
-const generatedAt = new Intl.DateTimeFormat('en', {
+const dateFormatter = new Intl.DateTimeFormat('en', {
   dateStyle: 'medium',
   timeStyle: 'short',
   timeZone: 'UTC'
-}).format(new Date(appleData.generatedAt));
+});
+
+function formatDate(value: string | null): string {
+  if (!value) {
+    return 'Unavailable';
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'Unavailable' : `${dateFormatter.format(date)} UTC`;
+}
+
+const generatedAt = formatDate(appleData.generatedAt);
 ---
 
-<html lang="en">
+<html lang="en" class="antialiased">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,9 +34,9 @@ const generatedAt = new Intl.DateTimeFormat('en', {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>iApple Updates</title>
   </head>
-  <body>
+  <body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
     <main class="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-      <section class="rounded-[2rem] bg-[#1d1d1f] px-8 py-10 text-white shadow-2xl shadow-slate-300/50 sm:px-12">
+      <section class="rounded-[2rem] bg-[#1d1d1f] px-8 py-10 text-white shadow-2xl shadow-slate-300/50 dark:shadow-slate-900/50 sm:px-12">
         <p class="text-sm font-medium uppercase tracking-[0.35em] text-slate-300">iApple Updates</p>
         <h1 class="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">
           Apple software releases, refreshed automatically.
@@ -33,22 +44,26 @@ const generatedAt = new Intl.DateTimeFormat('en', {
         <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
           A GitHub Pages-powered dashboard for iOS, iPadOS, macOS, watchOS, tvOS, and visionOS update data.
         </p>
-        <p class="mt-8 text-sm text-slate-400">Last generated: {generatedAt} UTC</p>
+        <p class="mt-8 text-sm text-slate-400">Last generated: {generatedAt}</p>
       </section>
 
       <section class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {updates.map((update) => (
-          <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p class="text-sm font-medium text-slate-500">{update.platform}</p>
-            <h2 class="mt-3 text-4xl font-semibold tracking-tight text-slate-950">{update.version}</h2>
-            <dl class="mt-6 space-y-3 text-sm text-slate-600">
+          <article class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{update.platform}</p>
+            <h2 class="mt-3 text-4xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{update.version}</h2>
+            <dl class="mt-6 space-y-3 text-sm text-slate-600 dark:text-slate-400">
               <div class="flex justify-between gap-4">
                 <dt>Build</dt>
-                <dd class="font-medium text-slate-950">{update.build ?? 'Unavailable'}</dd>
+                <dd class="font-medium text-slate-950 dark:text-slate-50">{update.build ?? 'Unavailable'}</dd>
               </div>
               <div class="flex justify-between gap-4">
                 <dt>Source</dt>
-                <dd class="font-medium text-slate-950">{update.source}</dd>
+                <dd class="font-medium text-slate-950 dark:text-slate-50">{update.source}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt>Fetched</dt>
+                <dd class="text-right font-medium text-slate-950 dark:text-slate-50">{formatDate(update.fetchedAt)}</dd>
               </div>
             </dl>
           </article>
@@ -56,41 +71,41 @@ const generatedAt = new Intl.DateTimeFormat('en', {
       </section>
 
       <section class="mt-10 grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 class="text-xl font-semibold text-slate-950">Recent release timeline</h2>
-          <div class="mt-6 space-y-5">
+        <article class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+          <h2 class="text-xl font-semibold text-slate-950 dark:text-slate-50">Recent release timeline</h2>
+          <ol class="mt-6 space-y-5">
             {timeline.length === 0 ? (
-              <p class="text-sm text-slate-500">No release timeline items were generated.</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">No release timeline items were generated.</p>
             ) : (
               timeline.map((item) => (
-                <div class="border-l-2 border-slate-200 pl-4">
-                  <h3 class="font-medium text-slate-950">
-                    {item.url ? <a class="hover:underline" href={item.url}>{item.title}</a> : item.title}
+                <li class="border-l-2 border-slate-200 dark:border-slate-800 pl-4">
+                  <h3 class="font-medium text-slate-950 dark:text-slate-50">
+                    {item.url ? <a class="hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950 dark:focus-visible:outline-slate-50" href={item.url}>{item.title}</a> : item.title}
                   </h3>
-                  <p class="mt-1 text-sm text-slate-500">
-                    {item.publishedAt ? new Date(item.publishedAt).toUTCString() : 'Date unavailable'} · {item.source}
+                  <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    {formatDate(item.publishedAt)} · {item.source}
                   </p>
-                </div>
+                </li>
               ))
             )}
-          </div>
+          </ol>
         </article>
 
-        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 class="text-xl font-semibold text-slate-950">Data source status</h2>
+        <article class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+          <h2 class="text-xl font-semibold text-slate-950 dark:text-slate-50">Data source status</h2>
           <div class="mt-6 space-y-4">
             {statuses.map((source) => (
-              <div class="rounded-2xl bg-slate-50 p-4">
+              <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/50 p-4">
                 <div class="flex items-center justify-between gap-4">
-                  <h3 class="font-medium text-slate-950">{source.name}</h3>
+                  <h3 class="font-medium text-slate-950 dark:text-slate-50">{source.name}</h3>
                   <span class:list={[
                     'rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide',
-                    source.status === 'ok' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                    source.status === 'ok' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
                   ]}>
                     {source.status}
                   </span>
                 </div>
-                {source.message && <p class="mt-2 text-sm text-slate-500">{source.message}</p>}
+                {source.message && <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{source.message}</p>}
               </div>
             ))}
           </div>
