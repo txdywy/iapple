@@ -7,10 +7,10 @@ import { normalizeGdmfUpdates, normalizeRssTimeline, normalizeSofaUpdates } from
 import type { DataSourceStatus, GeneratedAppleData, GeneratedTimelineData } from '../src/types/apple-updates';
 
 const urls = {
-  appleGdmf: 'https://gdmf.apple.com/v2/pmv',
-  sofaMacos: 'https://sofafeed.macadmins.io/v1/macos_data_feed.json',
-  sofaIos: 'https://sofafeed.macadmins.io/v1/ios_data_feed.json',
-  appleDeveloperRss: 'https://developer.apple.com/news/releases/rss/releases.rss'
+  appleGdmf: process.env.APPLE_GDMF_URL ?? 'https://gdmf.apple.com/v2/pmv',
+  sofaMacos: process.env.SOFA_MACOS_URL ?? 'https://sofafeed.macadmins.io/v1/macos_data_feed.json',
+  sofaIos: process.env.SOFA_IOS_URL ?? 'https://sofafeed.macadmins.io/v1/ios_data_feed.json',
+  appleDeveloperRss: process.env.APPLE_DEVELOPER_RSS_URL ?? 'https://developer.apple.com/news/releases/rss/releases.rss'
 } as const;
 
 const rootDir = dirname(fileURLToPath(new URL('../package.json', import.meta.url)));
@@ -53,11 +53,35 @@ async function fetchResponse(url: string, accept: string): Promise<Response> {
     }
   }
 
-  throw new Error(`${url}: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
+  throw new Error(`${url}: ${describeError(lastError)}`);
 }
 
 async function writeJson(path: string, value: unknown): Promise<void> {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function describeError(error: unknown): string {
+  if (!(error instanceof Error)) {
+    return String(error);
+  }
+
+  const cause = (error as Error & { cause?: unknown }).cause;
+  const causeMessage = describeCause(cause);
+
+  return causeMessage && causeMessage !== error.message ? `${error.message}: ${causeMessage}` : error.message;
+}
+
+function describeCause(cause: unknown): string | null {
+  if (cause instanceof Error) {
+    const code = (cause as Error & { code?: unknown }).code;
+    return typeof code === 'string' ? `${cause.message} (${code})` : cause.message;
+  }
+
+  if (typeof cause === 'string') {
+    return cause;
+  }
+
+  return cause ? String(cause) : null;
 }
 
 function ok(name: DataSourceStatus['name']): DataSourceStatus {
@@ -69,7 +93,7 @@ function failed(name: DataSourceStatus['name'], error: unknown): DataSourceStatu
     name,
     status: 'failed',
     fetchedAt,
-    message: error instanceof Error ? error.message : String(error)
+    message: describeError(error)
   };
 }
 
@@ -82,12 +106,12 @@ async function fetchGdmf(): Promise<{ updates: GeneratedAppleData['updates']; st
   }
 }
 
-async function fetchSofaStatus(name: Extract<DataSourceStatus['name'], 'SOFA macOS' | 'SOFA iOS'>, url: string): Promise<DataSourceStatus> {
+async function fetchSofaData(name: Extract<DataSourceStatus['name'], 'SOFA macOS' | 'SOFA iOS'>, url: string): Promise<{ data: unknown | null; status: DataSourceStatus }> {
   try {
-    await fetchJson(url);
-    return ok(name);
+    const data = await fetchJson(url);
+    return { data, status: ok(name) };
   } catch (error) {
-    return failed(name, error);
+    return { data: null, status: failed(name, error) };
   }
 }
 
@@ -103,20 +127,21 @@ async function fetchDeveloperTimeline(): Promise<{ timeline: GeneratedTimelineDa
 async function main(): Promise<void> {
   await mkdir(generatedDir, { recursive: true });
 
-  const [gdmf, sofaMacosStatus, sofaIosStatus, developerTimeline] = await Promise.all([
+  const [gdmf, sofaMacos, sofaIos, developerTimeline] = await Promise.all([
     fetchGdmf(),
-    fetchSofaStatus(dataSources.sofaMacos, urls.sofaMacos),
-    fetchSofaStatus(dataSources.sofaIos, urls.sofaIos),
+    fetchSofaData(dataSources.sofaMacos, urls.sofaMacos),
+    fetchSofaData(dataSources.sofaIos, urls.sofaIos),
     fetchDeveloperTimeline()
   ]);
-  const statuses = [gdmf.status, sofaMacosStatus, sofaIosStatus, developerTimeline.status];
+  const updates = gdmf.updates.length > 0 ? gdmf.updates : normalizeSofaUpdates(sofaMacos.data, sofaIos.data, fetchedAt);
+  const statuses = [gdmf.status, sofaMacos.status, sofaIos.status, developerTimeline.status];
 
-  if (gdmf.updates.length === 0 && developerTimeline.timeline.length === 0) {
+  if (updates.length === 0 && developerTimeline.timeline.length === 0) {
     await writeJson(join(generatedDir, 'data-source-status.json'), statuses);
     throw new Error('All Apple update data sources failed or returned no usable data.');
   }
 
-  await writeJson(join(generatedDir, 'apple-updates.json'), { generatedAt: fetchedAt, updates: gdmf.updates });
+  await writeJson(join(generatedDir, 'apple-updates.json'), { generatedAt: fetchedAt, updates });
   await writeJson(join(generatedDir, 'release-timeline.json'), { generatedAt: fetchedAt, items: developerTimeline.timeline });
   await writeJson(join(generatedDir, 'data-source-status.json'), statuses);
 }
