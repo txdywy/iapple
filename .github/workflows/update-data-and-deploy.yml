@@ -39,13 +39,18 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --location \
+            https://www.apple.com/appleca/AppleIncRootCertificate.cer \
+            --output /tmp/AppleIncRootCertificate.cer
+          curl --fail --silent --show-error --location \
             https://www.apple.com/certificateauthority/AppleRootCA-G2.cer \
             --output /tmp/AppleRootCA-G2.cer
           curl --fail --silent --show-error --location \
             https://www.apple.com/certificateauthority/AppleRootCA-G3.cer \
             --output /tmp/AppleRootCA-G3.cer
+          openssl x509 -inform DER -in /tmp/AppleIncRootCertificate.cer -out /tmp/AppleIncRootCertificate.crt
           openssl x509 -inform DER -in /tmp/AppleRootCA-G2.cer -out /tmp/AppleRootCA-G2.crt
           openssl x509 -inform DER -in /tmp/AppleRootCA-G3.cer -out /tmp/AppleRootCA-G3.crt
+          sudo cp /tmp/AppleIncRootCertificate.crt /usr/local/share/ca-certificates/AppleIncRootCertificate.crt
           sudo cp /tmp/AppleRootCA-G2.crt /usr/local/share/ca-certificates/AppleRootCA-G2.crt
           sudo cp /tmp/AppleRootCA-G3.crt /usr/local/share/ca-certificates/AppleRootCA-G3.crt
           sudo update-ca-certificates
