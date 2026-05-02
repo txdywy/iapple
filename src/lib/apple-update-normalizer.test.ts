@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeGdmfUpdates, normalizeRssTimeline } from './apple-update-normalizer';
+import { normalizeGdmfUpdates, normalizeRssTimeline, normalizeSofaUpdates } from './apple-update-normalizer';
 
 const fetchedAt = '2026-05-01T00:00:00.000Z';
 
@@ -101,6 +101,41 @@ describe('normalizeGdmfUpdates', () => {
     ]);
   });
 
+});
+
+describe('normalizeSofaUpdates', () => {
+  it('extracts macOS, iOS, and iPadOS updates from SOFA feeds', () => {
+    const macos = {
+      OSVersions: [
+        {
+          Latest: {
+            ProductVersion: '15.5',
+            Build: '24F74'
+          }
+        }
+      ]
+    };
+    const ios = {
+      OSVersions: [
+        {
+          Latest: {
+            ProductVersion: '18.5',
+            Build: '22F76'
+          }
+        }
+      ]
+    };
+
+    expect(normalizeSofaUpdates(macos, ios, fetchedAt)).toEqual([
+      { platform: 'macOS', version: '15.5', build: '24F74', source: 'SOFA', fetchedAt },
+      { platform: 'iOS', version: '18.5', build: '22F76', source: 'SOFA', fetchedAt },
+      { platform: 'iPadOS', version: '18.5', build: '22F76', source: 'SOFA', fetchedAt }
+    ]);
+  });
+
+  it('returns empty updates for malformed SOFA payloads', () => {
+    expect(normalizeSofaUpdates(null, { OSVersions: 'bad' }, fetchedAt)).toEqual([]);
+  });
 });
 
 describe('normalizeRssTimeline', () => {
