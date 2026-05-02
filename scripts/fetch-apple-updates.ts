@@ -1,5 +1,7 @@
+import { execFile as execFileCallback } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { XMLParser } from 'fast-xml-parser';
 import { dataSources } from '../src/types/apple-updates';
@@ -19,41 +21,70 @@ const fetchedAt = new Date().toISOString();
 const parser = new XMLParser({ ignoreAttributes: false });
 const requestTimeoutMs = 10_000;
 const maxAttempts = 2;
+const execFile = promisify(execFileCallback);
 
 async function fetchJson(url: string): Promise<unknown> {
-  const response = await fetchResponse(url, 'application/json');
-  return response.json();
+  return JSON.parse(await fetchBody(url, 'application/json'));
 }
 
 async function fetchText(url: string): Promise<string> {
-  const response = await fetchResponse(url, 'application/rss+xml, application/xml, text/xml');
-  return response.text();
+  return fetchBody(url, 'application/rss+xml, application/xml, text/xml');
 }
 
-async function fetchResponse(url: string, accept: string): Promise<Response> {
+async function fetchBody(url: string, accept: string): Promise<string> {
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      const response = await fetch(url, {
-        headers: { 
-          accept,
-          'User-Agent': 'iapple-update-fetcher/1.0 (+https://github.com/iapple/iapple)'
-        },
-        signal: AbortSignal.timeout(requestTimeoutMs)
-      });
-
-      if (!response.ok) {
-        throw new Error(`${response.status} ${response.statusText}`);
-      }
-
-      return response;
+      return await fetchBodyWithNode(url, accept);
     } catch (error) {
       lastError = error;
     }
   }
 
-  throw new Error(`${url}: ${describeError(lastError)}`);
+  try {
+    return await fetchBodyWithCurl(url, accept);
+  } catch (curlError) {
+    throw new Error(`${url}: ${describeError(lastError)}; curl fallback failed: ${describeError(curlError)}`);
+  }
+}
+
+async function fetchBodyWithNode(url: string, accept: string): Promise<string> {
+  const response = await fetch(url, {
+    headers: {
+      accept,
+      'User-Agent': 'iapple-update-fetcher/1.0 (+https://github.com/iapple/iapple)'
+    },
+    signal: AbortSignal.timeout(requestTimeoutMs)
+  });
+
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}`);
+  }
+
+  return response.text();
+}
+
+async function fetchBodyWithCurl(url: string, accept: string): Promise<string> {
+  const { stdout } = await execFile(
+    'curl',
+    [
+      '--fail',
+      '--silent',
+      '--show-error',
+      '--location',
+      '--max-time',
+      String(Math.ceil(requestTimeoutMs / 1000)),
+      '--header',
+      `Accept: ${accept}`,
+      '--header',
+      'User-Agent: iapple-update-fetcher/1.0 (+https://github.com/iapple/iapple)',
+      url
+    ],
+    { maxBuffer: 5 * 1024 * 1024 }
+  );
+
+  return stdout;
 }
 
 async function writeJson(path: string, value: unknown): Promise<void> {
@@ -67,8 +98,15 @@ function describeError(error: unknown): string {
 
   const cause = (error as Error & { cause?: unknown }).cause;
   const causeMessage = describeCause(cause);
+  const stderr = (error as Error & { stderr?: unknown }).stderr;
+  const stderrMessage = typeof stderr === 'string' ? stderr.trim() : '';
 
-  return causeMessage && causeMessage !== error.message ? `${error.message}: ${causeMessage}` : error.message;
+  if (stderrMessage && error.message.startsWith('Command failed:')) {
+    return stderrMessage;
+  }
+
+  const message = causeMessage && causeMessage !== error.message ? `${error.message}: ${causeMessage}` : error.message;
+  return stderrMessage ? `${message}: ${stderrMessage}` : message;
 }
 
 function describeCause(cause: unknown): string | null {
