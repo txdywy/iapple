@@ -125,11 +125,3 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
-hedAt, items: developerTimeline.timeline });
-  await writeJson(join(generatedDir, 'data-source-status.json'), statuses);
-}
-
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});

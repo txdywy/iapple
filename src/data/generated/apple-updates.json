@@ -1,47 +1,47 @@
 {
-  "generatedAt": "2026-05-01T13:17:00.500Z",
+  "generatedAt": "2026-05-02T01:14:51.182Z",
   "updates": [
     {
       "platform": "iOS",
       "version": "26.4.2",
       "build": "23E261",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-01T13:17:00.500Z"
+      "fetchedAt": "2026-05-02T01:14:51.182Z"
     },
     {
       "platform": "iPadOS",
       "version": "26.4.2",
       "build": "23E261",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-01T13:17:00.500Z"
+      "fetchedAt": "2026-05-02T01:14:51.182Z"
     },
     {
       "platform": "macOS",
       "version": "26.4.1",
       "build": "25E253",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-01T13:17:00.500Z"
+      "fetchedAt": "2026-05-02T01:14:51.182Z"
     },
     {
       "platform": "watchOS",
       "version": "26.4",
       "build": "23T6240",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-01T13:17:00.500Z"
+      "fetchedAt": "2026-05-02T01:14:51.182Z"
     },
     {
       "platform": "tvOS",
       "version": "26.4",
       "build": "23L6243",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-01T13:17:00.500Z"
+      "fetchedAt": "2026-05-02T01:14:51.182Z"
     },
     {
       "platform": "visionOS",
       "version": "26.4",
       "build": "23O247",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-01T13:17:00.500Z"
+      "fetchedAt": "2026-05-02T01:14:51.182Z"
     }
   ]
 }
