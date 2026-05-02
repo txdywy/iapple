@@ -2,25 +2,25 @@
   {
     "name": "Apple GDMF",
     "status": "ok",
-    "fetchedAt": "2026-05-01T08:51:18.460Z",
+    "fetchedAt": "2026-05-01T13:17:00.500Z",
     "message": null
   },
   {
     "name": "SOFA macOS",
-    "status": "failed",
-    "fetchedAt": "2026-05-01T08:51:18.460Z",
-    "message": "https://sofa.macadmins.io/v1/macos_data_feed.json: 403 Forbidden"
+    "status": "ok",
+    "fetchedAt": "2026-05-01T13:17:00.500Z",
+    "message": null
   },
   {
     "name": "SOFA iOS",
-    "status": "failed",
-    "fetchedAt": "2026-05-01T08:51:18.460Z",
-    "message": "https://sofa.macadmins.io/v1/ios_data_feed.json: 403 Forbidden"
+    "status": "ok",
+    "fetchedAt": "2026-05-01T13:17:00.500Z",
+    "message": null
   },
   {
     "name": "Apple Developer RSS",
     "status": "ok",
-    "fetchedAt": "2026-05-01T08:51:18.460Z",
+    "fetchedAt": "2026-05-01T13:17:00.500Z",
     "message": null
   }
 ]

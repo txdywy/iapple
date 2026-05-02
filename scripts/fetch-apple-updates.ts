@@ -3,13 +3,13 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { XMLParser } from 'fast-xml-parser';
 import { dataSources } from '../src/types/apple-updates';
-import { normalizeGdmfUpdates, normalizeRssTimeline } from '../src/lib/apple-update-normalizer';
+import { normalizeGdmfUpdates, normalizeRssTimeline, normalizeSofaUpdates } from '../src/lib/apple-update-normalizer';
 import type { DataSourceStatus, GeneratedAppleData, GeneratedTimelineData } from '../src/types/apple-updates';
 
 const urls = {
   appleGdmf: 'https://gdmf.apple.com/v2/pmv',
-  sofaMacos: 'https://sofa.macadmins.io/v1/macos_data_feed.json',
-  sofaIos: 'https://sofa.macadmins.io/v1/ios_data_feed.json',
+  sofaMacos: 'https://sofafeed.macadmins.io/v1/macos_data_feed.json',
+  sofaIos: 'https://sofafeed.macadmins.io/v1/ios_data_feed.json',
   appleDeveloperRss: 'https://developer.apple.com/news/releases/rss/releases.rss'
 } as const;
 
@@ -36,7 +36,10 @@ async function fetchResponse(url: string, accept: string): Promise<Response> {
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
       const response = await fetch(url, {
-        headers: { accept },
+        headers: { 
+          accept,
+          'User-Agent': 'iapple-update-fetcher/1.0 (+https://github.com/iapple/iapple)'
+        },
         signal: AbortSignal.timeout(requestTimeoutMs)
       });
 
@@ -115,6 +118,14 @@ async function main(): Promise<void> {
 
   await writeJson(join(generatedDir, 'apple-updates.json'), { generatedAt: fetchedAt, updates: gdmf.updates });
   await writeJson(join(generatedDir, 'release-timeline.json'), { generatedAt: fetchedAt, items: developerTimeline.timeline });
+  await writeJson(join(generatedDir, 'data-source-status.json'), statuses);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+hedAt, items: developerTimeline.timeline });
   await writeJson(join(generatedDir, 'data-source-status.json'), statuses);
 }
 

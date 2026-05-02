@@ -112,6 +112,34 @@ interface RssItem {
   pubDate?: unknown;
 }
 
+export function normalizeSofaUpdates(macOsData: unknown, iosData: unknown, fetchedAt: string): AppleUpdate[] {
+  const updates: AppleUpdate[] = [];
+
+  const addSofaUpdate = (data: unknown, platform: ApplePlatform) => {
+    if (!isRecord(data) || !Array.isArray(data.OSVersions)) return;
+    for (const os of data.OSVersions) {
+      if (!isRecord(os) || !isRecord(os.Latest)) continue;
+      const latest = os.Latest;
+      if (typeof latest.ProductVersion === 'string' && latest.ProductVersion.length > 0) {
+        updates.push({
+          platform,
+          version: latest.ProductVersion,
+          build: typeof latest.Build === 'string' && latest.Build.length > 0 ? latest.Build : null,
+          source: 'SOFA',
+          fetchedAt
+        });
+        break;
+      }
+    }
+  };
+
+  addSofaUpdate(macOsData, 'macOS');
+  addSofaUpdate(iosData, 'iOS');
+  addSofaUpdate(iosData, 'iPadOS');
+
+  return updates;
+}
+
 export function normalizeRssTimeline(data: unknown): ReleaseTimelineItem[] {
   return getRssItems(data)
     .filter((item) => typeof item.title === 'string' && item.title.length > 0)
