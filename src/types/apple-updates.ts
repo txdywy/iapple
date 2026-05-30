@@ -8,7 +8,7 @@ export const dataSources = {
   appleDeveloperRss: 'Apple Developer RSS'
 } as const;
 
-export type UpdateDataSource = typeof dataSources.appleGdmf | 'SOFA' | 'Manual fallback';
+export type UpdateDataSource = typeof dataSources.appleGdmf | 'SOFA';
 export type StatusDataSource = (typeof dataSources)[keyof typeof dataSources];
 
 export interface AppleUpdate {
