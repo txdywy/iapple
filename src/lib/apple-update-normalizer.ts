@@ -16,10 +16,15 @@ const devicePrefixesByPlatform: Record<ApplePlatform, string[]> = {
   visionOS: ['RealityDevice']
 };
 
+function getMajorVersion(version: string): string {
+  const match = version.match(/^(\d+)/);
+  return match ? match[1] : '';
+}
+
 export function normalizeGdmfUpdates(data: unknown, fetchedAt: string): AppleUpdate[] {
   const publicAssetSets = getPublicAssetSets(data);
   const assets = Object.values(publicAssetSets).flat();
-  const latestByPlatform = new Map<ApplePlatform, GdmfAsset>();
+  const latestByPlatformAndMajor = new Map<string, GdmfAsset>();
 
   for (const asset of assets) {
     if (typeof asset.ProductVersion !== 'string' || asset.ProductVersion.length === 0) {
@@ -27,30 +32,41 @@ export function normalizeGdmfUpdates(data: unknown, fetchedAt: string): AppleUpd
     }
 
     for (const platform of classifyAsset(asset)) {
-      const previous = latestByPlatform.get(platform);
+      const major = getMajorVersion(asset.ProductVersion);
+      if (!major) continue;
+
+      const key = `${platform}-${major}`;
+      const previous = latestByPlatformAndMajor.get(key);
 
       if (!previous || compareAssets(asset, previous) > 0) {
-        latestByPlatform.set(platform, asset);
+        latestByPlatformAndMajor.set(key, asset);
       }
     }
   }
 
   return applePlatforms.flatMap((platform) => {
-    const asset = latestByPlatform.get(platform);
+    const platformAssets = Array.from(latestByPlatformAndMajor.entries())
+      .filter(([key]) => key.startsWith(`${platform}-`))
+      .map(([, asset]) => asset);
 
-    if (!asset || typeof asset.ProductVersion !== 'string') {
-      return [];
-    }
+    platformAssets.sort((a, b) => compareAssets(b, a));
 
-    return [
-      {
-        platform,
-        version: asset.ProductVersion,
-        build: typeof asset.Build === 'string' && asset.Build.length > 0 ? asset.Build : null,
-        source: dataSources.appleGdmf,
-        fetchedAt
+    return platformAssets.flatMap((asset) => {
+      if (typeof asset.ProductVersion !== 'string') {
+        return [];
       }
-    ];
+
+      return [
+        {
+          platform,
+          version: asset.ProductVersion,
+          build: typeof asset.Build === 'string' && asset.Build.length > 0 ? asset.Build : null,
+          source: dataSources.appleGdmf,
+          fetchedAt,
+          releaseDate: typeof asset.PostingDate === 'string' && asset.PostingDate.length > 0 ? asset.PostingDate : null
+        }
+      ];
+    });
   });
 }
 
@@ -126,9 +142,9 @@ export function normalizeSofaUpdates(macOsData: unknown, iosData: unknown, fetch
           version: latest.ProductVersion,
           build: typeof latest.Build === 'string' && latest.Build.length > 0 ? latest.Build : null,
           source: 'SOFA',
-          fetchedAt
+          fetchedAt,
+          releaseDate: typeof latest.ReleaseDate === 'string' && latest.ReleaseDate.length > 0 ? latest.ReleaseDate.split('T')[0] : null
         });
-        break;
       }
     }
   };
@@ -138,6 +154,39 @@ export function normalizeSofaUpdates(macOsData: unknown, iosData: unknown, fetch
   addSofaUpdate(iosData, 'iPadOS');
 
   return updates;
+}
+
+export function mergeUpdates(gdmfUpdates: AppleUpdate[], sofaUpdates: AppleUpdate[]): AppleUpdate[] {
+  const merged = new Map<string, AppleUpdate>();
+
+  for (const update of sofaUpdates) {
+    const key = `${update.platform}-${update.version}`;
+    merged.set(key, update);
+  }
+
+  for (const update of gdmfUpdates) {
+    const key = `${update.platform}-${update.version}`;
+    const existing = merged.get(key);
+    if (!existing) {
+      merged.set(key, update);
+    } else {
+      merged.set(key, {
+        ...existing,
+        ...update,
+        build: update.build || existing.build,
+        releaseDate: update.releaseDate || existing.releaseDate,
+        source: update.source
+      });
+    }
+  }
+
+  return Array.from(merged.values()).sort((a, b) => {
+    const platformDiff = applePlatforms.indexOf(a.platform) - applePlatforms.indexOf(b.platform);
+    if (platformDiff !== 0) {
+      return platformDiff;
+    }
+    return compareVersions(b.version, a.version);
+  });
 }
 
 export function normalizeRssTimeline(data: unknown): ReleaseTimelineItem[] {

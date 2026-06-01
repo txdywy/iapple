@@ -17,6 +17,7 @@ export interface AppleUpdate {
   build: string | null;
   source: UpdateDataSource;
   fetchedAt: string;
+  releaseDate?: string | null;
 }
 
 export interface ReleaseTimelineItem {

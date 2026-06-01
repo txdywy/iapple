@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { XMLParser } from 'fast-xml-parser';
 import { dataSources } from '../src/types/apple-updates';
-import { normalizeGdmfUpdates, normalizeRssTimeline, normalizeSofaUpdates } from '../src/lib/apple-update-normalizer';
+import { normalizeGdmfUpdates, normalizeRssTimeline, normalizeSofaUpdates, mergeUpdates } from '../src/lib/apple-update-normalizer';
 import type { DataSourceStatus, GeneratedAppleData, GeneratedTimelineData } from '../src/types/apple-updates';
 
 const urls = {
@@ -165,13 +165,27 @@ async function fetchDeveloperTimeline(): Promise<{ timeline: GeneratedTimelineDa
 async function main(): Promise<void> {
   await mkdir(generatedDir, { recursive: true });
 
+  console.log(`Starting update check at: ${fetchedAt}`);
+
+  console.log('Fetching all data sources in parallel...');
   const [gdmf, sofaMacos, sofaIos, developerTimeline] = await Promise.all([
     fetchGdmf(),
     fetchSofaData(dataSources.sofaMacos, urls.sofaMacos),
     fetchSofaData(dataSources.sofaIos, urls.sofaIos),
     fetchDeveloperTimeline()
   ]);
-  const updates = gdmf.updates.length > 0 ? gdmf.updates : normalizeSofaUpdates(sofaMacos.data, sofaIos.data, fetchedAt);
+
+  console.log(`GDMF fetch status: ${gdmf.status.status} (${gdmf.updates.length} updates found)`);
+  console.log(`SOFA macOS fetch status: ${sofaMacos.status.status}`);
+  console.log(`SOFA iOS fetch status: ${sofaIos.status.status}`);
+  console.log(`Apple Developer RSS fetch status: ${developerTimeline.status.status} (${developerTimeline.timeline.length} timeline items found)`);
+
+  const sofaUpdates = normalizeSofaUpdates(sofaMacos.data, sofaIos.data, fetchedAt);
+  console.log(`Normalized ${sofaUpdates.length} updates from SOFA feeds.`);
+
+  const updates = mergeUpdates(gdmf.updates, sofaUpdates);
+  console.log(`Merged updates: ${updates.length} total active versions tracked.`);
+
   const statuses = [gdmf.status, sofaMacos.status, sofaIos.status, developerTimeline.status];
 
   if (updates.length === 0 && developerTimeline.timeline.length === 0) {
@@ -182,6 +196,8 @@ async function main(): Promise<void> {
   await writeJson(join(generatedDir, 'apple-updates.json'), { generatedAt: fetchedAt, updates });
   await writeJson(join(generatedDir, 'release-timeline.json'), { generatedAt: fetchedAt, items: developerTimeline.timeline });
   await writeJson(join(generatedDir, 'data-source-status.json'), statuses);
+
+  console.log('Successfully wrote data files to src/data/generated/');
 }
 
 main().catch((error) => {

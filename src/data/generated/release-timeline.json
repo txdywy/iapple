@@ -1,76 +1,76 @@
 {
-  "generatedAt": "2026-05-02T01:32:59.325Z",
+  "generatedAt": "2026-06-01T10:25:51.918Z",
   "items": [
     {
-      "title": "TestFlight 4.2",
-      "url": "https://developer.apple.com/news/releases/?id=04302026a",
-      "publishedAt": "2026-04-30T17:00:00.000Z",
+      "title": "TestFlight 4.2.1",
+      "url": "https://developer.apple.com/news/releases/?id=05292026a",
+      "publishedAt": "2026-05-29T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "TestFlight Update",
-      "url": "https://developer.apple.com/news/releases/?id=04282026a",
-      "publishedAt": "2026-04-28T21:00:00.000Z",
+      "title": "iOS 26.6 beta (23G5028e)",
+      "url": "https://developer.apple.com/news/releases/?id=05262026a",
+      "publishedAt": "2026-05-26T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "Xcode 26.5 beta 3 (17F5032f)",
-      "url": "https://developer.apple.com/news/releases/?id=04272026g",
-      "publishedAt": "2026-04-27T17:00:00.000Z",
+      "title": "iPadOS 26.6 beta (23G5028e)",
+      "url": "https://developer.apple.com/news/releases/?id=05262026b",
+      "publishedAt": "2026-05-26T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "iOS 26.5 beta 4 (23F5069b)",
-      "url": "https://developer.apple.com/news/releases/?id=04272026a",
-      "publishedAt": "2026-04-27T17:00:00.000Z",
+      "title": "macOS 26.6 beta (25G5028f)",
+      "url": "https://developer.apple.com/news/releases/?id=05262026c",
+      "publishedAt": "2026-05-26T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "iPadOS 26.5 beta 4 (23F5069b)",
-      "url": "https://developer.apple.com/news/releases/?id=04272026b",
-      "publishedAt": "2026-04-27T17:00:00.000Z",
+      "title": "tvOS 26.6 beta (23L5729e)",
+      "url": "https://developer.apple.com/news/releases/?id=05262026d",
+      "publishedAt": "2026-05-26T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "macOS 26.5 beta 4 (25F5068a)",
-      "url": "https://developer.apple.com/news/releases/?id=04272026c",
-      "publishedAt": "2026-04-27T17:00:00.000Z",
+      "title": "visionOS 26.6 beta (23O5728e)",
+      "url": "https://developer.apple.com/news/releases/?id=05262026e",
+      "publishedAt": "2026-05-26T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "tvOS 26.5 beta 4 (23L5469a)",
-      "url": "https://developer.apple.com/news/releases/?id=04272026d",
-      "publishedAt": "2026-04-27T17:00:00.000Z",
+      "title": "watchOS 26.6 beta (23U5025e)",
+      "url": "https://developer.apple.com/news/releases/?id=05262026f",
+      "publishedAt": "2026-05-26T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "visionOS 26.5 beta 4 (23O5468a)",
-      "url": "https://developer.apple.com/news/releases/?id=04272026e",
-      "publishedAt": "2026-04-27T17:00:00.000Z",
+      "title": "App Store Connect API 4.3.1",
+      "url": "https://developer.apple.com/news/releases/?id=05122026a",
+      "publishedAt": "2026-05-12T21:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "watchOS 26.5 beta 4 (23T5568a)",
-      "url": "https://developer.apple.com/news/releases/?id=04272026f",
-      "publishedAt": "2026-04-27T17:00:00.000Z",
+      "title": "Xcode 26.5 (17F42)",
+      "url": "https://developer.apple.com/news/releases/?id=05112026n",
+      "publishedAt": "2026-05-11T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "iOS 26.4.2 (23E261)",
-      "url": "https://developer.apple.com/news/releases/?id=04222026a",
-      "publishedAt": "2026-04-22T17:00:00.000Z",
+      "title": "iOS 26.5 (23F77)",
+      "url": "https://developer.apple.com/news/releases/?id=05112026a",
+      "publishedAt": "2026-05-11T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "iPadOS 26.4.2 (23E261)",
-      "url": "https://developer.apple.com/news/releases/?id=04222026b",
-      "publishedAt": "2026-04-22T17:00:00.000Z",
+      "title": "iPadOS 26.5 (23F77)",
+      "url": "https://developer.apple.com/news/releases/?id=05112026b",
+      "publishedAt": "2026-05-11T17:00:00.000Z",
       "source": "Apple Developer RSS"
     },
     {
-      "title": "iOS 18.7.8 (22H352)",
-      "url": "https://developer.apple.com/news/releases/?id=04222026c",
-      "publishedAt": "2026-04-22T17:00:00.000Z",
+      "title": "macOS 26.5 (25F71)",
+      "url": "https://developer.apple.com/news/releases/?id=05112026c",
+      "publishedAt": "2026-05-11T17:00:00.000Z",
       "source": "Apple Developer RSS"
     }
   ]

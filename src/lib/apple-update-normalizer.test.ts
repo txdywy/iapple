@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeGdmfUpdates, normalizeRssTimeline, normalizeSofaUpdates } from './apple-update-normalizer';
+import { normalizeGdmfUpdates, normalizeRssTimeline, normalizeSofaUpdates, mergeUpdates } from './apple-update-normalizer';
+import type { AppleUpdate } from '../types/apple-updates';
 
 const fetchedAt = '2026-05-01T00:00:00.000Z';
 
@@ -23,12 +24,12 @@ describe('normalizeGdmfUpdates', () => {
     };
 
     expect(normalizeGdmfUpdates(data, fetchedAt)).toEqual([
-      { platform: 'iOS', version: '18.5', build: '22F76', source: 'Apple GDMF', fetchedAt },
-      { platform: 'iPadOS', version: '18.5', build: '22F76', source: 'Apple GDMF', fetchedAt },
-      { platform: 'macOS', version: '15.5', build: '24F74', source: 'Apple GDMF', fetchedAt },
-      { platform: 'watchOS', version: '11.5', build: '22T556', source: 'Apple GDMF', fetchedAt },
-      { platform: 'tvOS', version: '18.5', build: '22L556', source: 'Apple GDMF', fetchedAt },
-      { platform: 'visionOS', version: '2.5', build: '22O473', source: 'Apple GDMF', fetchedAt }
+      { platform: 'iOS', version: '18.5', build: '22F76', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'iPadOS', version: '18.5', build: '22F76', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'macOS', version: '15.5', build: '24F74', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'watchOS', version: '11.5', build: '22T556', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'tvOS', version: '18.5', build: '22L556', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'visionOS', version: '2.5', build: '22O473', source: 'Apple GDMF', fetchedAt, releaseDate: null }
     ]);
   });
 
@@ -41,7 +42,7 @@ describe('normalizeGdmfUpdates', () => {
     };
 
     expect(normalizeGdmfUpdates(data, fetchedAt)).toEqual([
-      { platform: 'macOS', version: '15.5', build: null, source: 'Apple GDMF', fetchedAt }
+      { platform: 'macOS', version: '15.5', build: null, source: 'Apple GDMF', fetchedAt, releaseDate: null }
     ]);
   });
 
@@ -61,27 +62,28 @@ describe('normalizeGdmfUpdates', () => {
     };
 
     expect(normalizeGdmfUpdates(data, fetchedAt)).toEqual([
-      { platform: 'iOS', version: '26.4.1', build: '23E252', source: 'Apple GDMF', fetchedAt },
-      { platform: 'iPadOS', version: '26.4.2', build: '23E261', source: 'Apple GDMF', fetchedAt },
-      { platform: 'watchOS', version: '26.4', build: '23T240', source: 'Apple GDMF', fetchedAt },
-      { platform: 'tvOS', version: '26.3', build: '23K6620', source: 'Apple GDMF', fetchedAt },
-      { platform: 'visionOS', version: '26.4', build: '23O247', source: 'Apple GDMF', fetchedAt }
+      { platform: 'iOS', version: '26.4.1', build: '23E252', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'iPadOS', version: '26.4.2', build: '23E261', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'watchOS', version: '26.4', build: '23T240', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'watchOS', version: '9.6.4', build: '20U512', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'tvOS', version: '26.3', build: '23K6620', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'visionOS', version: '26.4', build: '23O247', source: 'Apple GDMF', fetchedAt, releaseDate: null }
     ]);
   });
 
 
-  it('prefers the highest platform version over a newer posting date', () => {
+  it('prefers the highest version in the same major branch over a newer posting date', () => {
     const data = {
       PublicAssetSets: {
         iOS: [
-          { ProductVersion: '17.7.10', Build: '21H450', PostingDate: '2026-05-01', SupportedDevices: ['iPad7,1'] },
+          { ProductVersion: '26.4.1', Build: '23E252', PostingDate: '2026-05-01', SupportedDevices: ['iPad11,1'] },
           { ProductVersion: '26.4.2', Build: '23E261', PostingDate: '2026-04-29', SupportedDevices: ['iPad11,1'] }
         ]
       }
     };
 
     expect(normalizeGdmfUpdates(data, fetchedAt)).toEqual([
-      { platform: 'iPadOS', version: '26.4.2', build: '23E261', source: 'Apple GDMF', fetchedAt }
+      { platform: 'iPadOS', version: '26.4.2', build: '23E261', source: 'Apple GDMF', fetchedAt, releaseDate: '2026-04-29' }
     ]);
   });
 
@@ -96,8 +98,8 @@ describe('normalizeGdmfUpdates', () => {
     };
 
     expect(normalizeGdmfUpdates(data, fetchedAt)).toEqual([
-      { platform: 'iOS', version: '26.4.2', build: '23E261', source: 'Apple GDMF', fetchedAt },
-      { platform: 'iPadOS', version: '26.4.2', build: '23E261', source: 'Apple GDMF', fetchedAt }
+      { platform: 'iOS', version: '26.4.2', build: '23E261', source: 'Apple GDMF', fetchedAt, releaseDate: null },
+      { platform: 'iPadOS', version: '26.4.2', build: '23E261', source: 'Apple GDMF', fetchedAt, releaseDate: null }
     ]);
   });
 
@@ -110,7 +112,8 @@ describe('normalizeSofaUpdates', () => {
         {
           Latest: {
             ProductVersion: '15.5',
-            Build: '24F74'
+            Build: '24F74',
+            ReleaseDate: '2026-05-11T00:00:00Z'
           }
         }
       ]
@@ -120,16 +123,17 @@ describe('normalizeSofaUpdates', () => {
         {
           Latest: {
             ProductVersion: '18.5',
-            Build: '22F76'
+            Build: '22F76',
+            ReleaseDate: '2026-05-11T00:00:00Z'
           }
         }
       ]
     };
 
     expect(normalizeSofaUpdates(macos, ios, fetchedAt)).toEqual([
-      { platform: 'macOS', version: '15.5', build: '24F74', source: 'SOFA', fetchedAt },
-      { platform: 'iOS', version: '18.5', build: '22F76', source: 'SOFA', fetchedAt },
-      { platform: 'iPadOS', version: '18.5', build: '22F76', source: 'SOFA', fetchedAt }
+      { platform: 'macOS', version: '15.5', build: '24F74', source: 'SOFA', fetchedAt, releaseDate: '2026-05-11' },
+      { platform: 'iOS', version: '18.5', build: '22F76', source: 'SOFA', fetchedAt, releaseDate: '2026-05-11' },
+      { platform: 'iPadOS', version: '18.5', build: '22F76', source: 'SOFA', fetchedAt, releaseDate: '2026-05-11' }
     ]);
   });
 
@@ -169,6 +173,27 @@ describe('normalizeRssTimeline', () => {
         publishedAt: '2026-05-01T10:00:00.000Z',
         source: 'Apple Developer RSS'
       }
+    ]);
+  });
+});
+
+describe('mergeUpdates', () => {
+  it('correctly merges updates from GDMF and SOFA, prioritizing GDMF values but unioning both', () => {
+    const gdmf: AppleUpdate[] = [
+      { platform: 'iOS', version: '18.5', build: '22F76', source: 'Apple GDMF', fetchedAt, releaseDate: '2026-05-11' },
+      { platform: 'macOS', version: '15.5', build: '24F74', source: 'Apple GDMF', fetchedAt, releaseDate: '2026-05-11' }
+    ];
+    const sofa: AppleUpdate[] = [
+      { platform: 'iOS', version: '18.5', build: null, source: 'SOFA', fetchedAt, releaseDate: '2026-05-11' },
+      { platform: 'macOS', version: '15.4', build: '24E234', source: 'SOFA', fetchedAt, releaseDate: '2026-04-10' }
+    ];
+
+    const result = mergeUpdates(gdmf, sofa);
+
+    expect(result).toEqual([
+      { platform: 'iOS', version: '18.5', build: '22F76', source: 'Apple GDMF', fetchedAt, releaseDate: '2026-05-11' },
+      { platform: 'macOS', version: '15.5', build: '24F74', source: 'Apple GDMF', fetchedAt, releaseDate: '2026-05-11' },
+      { platform: 'macOS', version: '15.4', build: '24E234', source: 'SOFA', fetchedAt, releaseDate: '2026-04-10' }
     ]);
   });
 });

@@ -1,47 +1,229 @@
 {
-  "generatedAt": "2026-05-02T01:32:59.325Z",
+  "generatedAt": "2026-06-01T10:25:51.918Z",
   "updates": [
     {
       "platform": "iOS",
-      "version": "26.4.2",
-      "build": "23E261",
+      "version": "26.5",
+      "build": "23F6077",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-02T01:32:59.325Z"
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iOS",
+      "version": "18.7.9",
+      "build": "22H6355",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iOS",
+      "version": "17.7.9",
+      "build": "17A000",
+      "source": "SOFA",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2025-07-29"
+    },
+    {
+      "platform": "iOS",
+      "version": "16.7.16",
+      "build": "20H6392",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iOS",
+      "version": "15.8.8",
+      "build": "19H422",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iOS",
+      "version": "12.5.8",
+      "build": "16H88",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
     },
     {
       "platform": "iPadOS",
-      "version": "26.4.2",
-      "build": "23E261",
+      "version": "26.5",
+      "build": "23F6077",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-02T01:32:59.325Z"
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iPadOS",
+      "version": "18.7.9",
+      "build": "22H6355",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iPadOS",
+      "version": "17.7.11",
+      "build": "21H461",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iPadOS",
+      "version": "17.7.9",
+      "build": "17A000",
+      "source": "SOFA",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2025-07-29"
+    },
+    {
+      "platform": "iPadOS",
+      "version": "16.7.16",
+      "build": "20H6392",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iPadOS",
+      "version": "15.8.8",
+      "build": "19H422",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "iPadOS",
+      "version": "12.5.8",
+      "build": "16H88",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
     },
     {
       "platform": "macOS",
-      "version": "26.4.1",
-      "build": "25E253",
+      "version": "26.5",
+      "build": "25F71",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-02T01:32:59.325Z"
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "macOS",
+      "version": "15.7.7",
+      "build": "24G720",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "macOS",
+      "version": "14.8.7",
+      "build": "23J520",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "macOS",
+      "version": "13.7.8",
+      "build": "22H730",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "macOS",
+      "version": "12.7.6",
+      "build": "21H1320",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
+    },
+    {
+      "platform": "macOS",
+      "version": "11.7.11",
+      "build": "20G1443",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
     },
     {
       "platform": "watchOS",
-      "version": "26.4",
-      "build": "23T6240",
+      "version": "26.5",
+      "build": "23T6570",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-02T01:32:59.325Z"
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-11"
+    },
+    {
+      "platform": "watchOS",
+      "version": "11.6.2",
+      "build": "22U95",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-11"
+    },
+    {
+      "platform": "watchOS",
+      "version": "10.6.2",
+      "build": "21U6594",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-11"
+    },
+    {
+      "platform": "watchOS",
+      "version": "9.6.4",
+      "build": "20U512",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-11"
+    },
+    {
+      "platform": "watchOS",
+      "version": "8.8.2",
+      "build": "19U526",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-11"
+    },
+    {
+      "platform": "watchOS",
+      "version": "6.3.1",
+      "build": "17U6224",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-11"
+    },
+    {
+      "platform": "watchOS",
+      "version": "5.3.10",
+      "build": "16U711",
+      "source": "Apple GDMF",
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-11"
     },
     {
       "platform": "tvOS",
-      "version": "26.4",
-      "build": "23L6243",
+      "version": "26.5",
+      "build": "23L6471",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-02T01:32:59.325Z"
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
     },
     {
       "platform": "visionOS",
-      "version": "26.4",
-      "build": "23O247",
+      "version": "26.5",
+      "build": "23O471",
       "source": "Apple GDMF",
-      "fetchedAt": "2026-05-02T01:32:59.325Z"
+      "fetchedAt": "2026-06-01T10:25:51.918Z",
+      "releaseDate": "2026-05-18"
     }
   ]
 }
